@@ -1,8 +1,23 @@
 package com.wkrzywiec.spring.libraryrest.model;
 
-import java.util.Set;
+import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,6 +32,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @Entity
 @Table(name="book")
+@JsonIdentityInfo(
+		generator=ObjectIdGenerators.PropertyGenerator.class,
+		property="id")
 public class Book {
 
 	@Id
@@ -30,14 +48,13 @@ public class Book {
 	@Column(name="title")
 	private String title;
 	
-	@ManyToMany(fetch=FetchType.EAGER,
-				cascade= { CascadeType.MERGE,
+	@ManyToMany(cascade= { CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name="book_author",
 			joinColumns=@JoinColumn(name="book_id"),
 			inverseJoinColumns=@JoinColumn(name="author_id"))
-	private Set<Author> authors;
+	private List<Author> authors;
 	
 	@Column(name="publisher")
 	private String publisher;
@@ -54,14 +71,13 @@ public class Book {
 	@Column(name="page_count")
 	private int pageCount;
 	
-	@ManyToMany(fetch=FetchType.EAGER,
-				cascade= {CascadeType.MERGE,
+	@ManyToMany(cascade= {CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name="book_bookcategory",
 			joinColumns=@JoinColumn(name="book_id"),
 			inverseJoinColumns=@JoinColumn(name="bookcategory_id"))
-	private Set<BookCategory> categories;
+	private List<BookCategory> categories;
 	
 	@Column(name="rating")
 	private double rating;
@@ -76,6 +92,7 @@ public class Book {
 			cascade= {CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH},
 			fetch=FetchType.LAZY)
+	@JsonBackReference
 	private Reserved reserved;
 	
 }

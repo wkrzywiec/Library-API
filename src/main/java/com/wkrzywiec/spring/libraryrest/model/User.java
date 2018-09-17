@@ -3,9 +3,25 @@ package com.wkrzywiec.spring.libraryrest.model;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -20,6 +36,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @Entity
 @Table(name="user")
+@JsonIdentityInfo(
+		generator=ObjectIdGenerators.PropertyGenerator.class,
+		property="id")
 public class User {
 
 	@Id
@@ -68,18 +87,20 @@ public class User {
 				joinColumns=@JoinColumn(name="user_id"),
 				inverseJoinColumns=@JoinColumn(name="role_id"))
 	private Set<Role> roles;
+	
+	@OneToMany(	cascade= {CascadeType.MERGE,
+						CascadeType.PERSIST, CascadeType.REFRESH},
+				fetch=FetchType.LAZY)
+	@JoinColumn(name="user_id")
+	@JsonBackReference
+	private List<Reserved> reservedBooks; 
 	/*
 	@OneToMany(	mappedBy="user",
 				cascade= {CascadeType.MERGE,
 						CascadeType.PERSIST, CascadeType.REFRESH},
 				fetch=FetchType.LAZY)
-	private Set<Reserved> reservedBooks; 
-	
-	@OneToMany(	mappedBy="user",
-				cascade= {CascadeType.MERGE,
-						CascadeType.PERSIST, CascadeType.REFRESH},
-				fetch=FetchType.LAZY)
-	private Set<Borrowed> borrowedBooks;
+	@JsonBackReference
+	private List<Borrowed> borrowedBooks;
 	
 	@ManyToMany(fetch=FetchType.EAGER,
 			cascade= {CascadeType.MERGE,
@@ -88,20 +109,23 @@ public class User {
 			name="book_penalty",
 			joinColumns=@JoinColumn(name="user_id"),
 			inverseJoinColumns=@JoinColumn(name="book_id"))
-	private Set<BookPenalty> penalties;
+	@JsonBackReference
+	private List<BookPenalty> penalties;
 	
 	@OneToMany(	mappedBy="user",
 			cascade= {CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH},
 			fetch=FetchType.LAZY)
-	private Set<UserLog> userLogs;
+	@JsonBackReference
+	private List<UserLog> userLogs;
 	
 	@OneToMany(	mappedBy="user",
 			cascade= {CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH},
 			fetch=FetchType.LAZY)
-	private Set<LibraryLog> libraryLogs;*/
-	
+	@JsonBackReference
+	private List<LibraryLog> libraryLogs;
+	*/
 	public User(String username, String email, boolean enable, String firstName, String lastName) {
 		super();
 		this.username = username;

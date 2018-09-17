@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,10 +34,12 @@ public class LibraryLog {
 	
 	@ManyToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name="book_id", insertable=false, updatable=false)
+	@JsonBackReference
 	private Book book;
 	
 	@ManyToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id", insertable=false, updatable=false)
+	@JsonBackReference
 	private User user;
 	
 	@Column(name="dated")

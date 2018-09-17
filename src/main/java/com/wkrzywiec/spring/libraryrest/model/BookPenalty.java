@@ -13,6 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,10 +38,12 @@ public class BookPenalty {
 	
 	@ManyToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id", insertable=false, updatable=false)
+	@JsonBackReference
 	private User user;
 	
 	@OneToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name="book_id")
+	@JsonBackReference
 	private Book book;
 	
 	@Column(name="due_date")

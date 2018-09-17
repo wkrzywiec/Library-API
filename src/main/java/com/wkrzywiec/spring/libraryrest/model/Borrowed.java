@@ -14,6 +14,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,10 +38,12 @@ public class Borrowed {
 	
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="book_id")
+	@JsonBackReference
 	private Book book;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id")
+	@JsonBackReference
 	private User user;
 	
 	@Column(name="dated")
