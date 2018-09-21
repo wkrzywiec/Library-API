@@ -25,7 +25,7 @@ public class UserControllerTest {
 	private MockMvc mvc;
 	
 	@Test
-	public void givenAllUserURL_whenProvideURL_thenReceiveJSONRespond() throws Exception {
+	public void givenAllUserURL_whenProvideURL_thenReceiveJSONOkRespond() throws Exception {
 		mvc.perform(
         		get("/users").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
@@ -36,7 +36,7 @@ public class UserControllerTest {
 	}
 	
 	@Test
-	public void givenFirstUserId_whenProvideURL_thenReceiveJSONRespond() throws Exception {
+	public void givenFirstUserId_whenProvideURL_thenReceiveJSONOkRespond() throws Exception {
 		mvc.perform(
         		get("/users/1").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
@@ -58,11 +58,22 @@ public class UserControllerTest {
 					.andExpect(jsonPath("$.roles[0].name", is("USER")))
 					.andExpect(jsonPath("$.roles[1].id", is(2)))
 					.andExpect(jsonPath("$.roles[1].name", is("ADMIN")))
-					.andExpect(jsonPath("$.reservedBooks", hasSize(1)))
-					.andExpect(jsonPath("$.reservedBooks[0].id", is(3)))
-					.andExpect(jsonPath("$.reservedBooks[0].book.id", is(17)))
+					.andExpect(jsonPath("$.penalties", hasSize(0)))
+					.andExpect(jsonPath("$.userLogs", hasSize(4)))
+					.andExpect(jsonPath("$.libraryLogs", hasSize(3)))
 					.andExpect(jsonPath("$._links.self.href", is("http://localhost/users/1")))
 					.andExpect(jsonPath("$._links.users.href", is("http://localhost/users")))
+        ;
+	}
+	
+	@Test
+	public void givenInvalidUserId_whenProvideURL_thenReceiveErrorJSONNotFoundRespond() throws Exception {
+		mvc.perform(
+        		get("/users/1500").contentType(MediaType.TEXT_PLAIN_VALUE))
+                	.andDo(print())
+                	.andExpect(status().isNotFound())
+                	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                	.andExpect(content().string("Could not find user with id: 1500"))
         ;
 	}
 }

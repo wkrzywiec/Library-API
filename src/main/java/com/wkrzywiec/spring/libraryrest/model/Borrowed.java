@@ -15,6 +15,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,6 +32,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @Entity
 @Table(name="borrowed")
+@JsonIdentityInfo(
+		generator=ObjectIdGenerators.PropertyGenerator.class,
+		property="id")
 public class Borrowed {
 
 	@Id
@@ -36,14 +42,14 @@ public class Borrowed {
 	@Column(name="id")
 	private Long id;
 	
-	@OneToOne(fetch=FetchType.LAZY)
+	@OneToOne()
 	@JoinColumn(name="book_id")
-	@JsonBackReference
+	@JsonManagedReference("borrowedBook")
 	private Book book;
 	
-	@ManyToOne(fetch=FetchType.LAZY)
+	@ManyToOne()
 	@JoinColumn(name="user_id")
-	@JsonBackReference
+	@JsonManagedReference("borrowedUser")
 	private User user;
 	
 	@Column(name="dated")

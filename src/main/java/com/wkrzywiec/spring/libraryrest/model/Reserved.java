@@ -44,13 +44,14 @@ public class Reserved {
 	
 	@OneToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="book_id")
-	@JsonManagedReference
+	@JsonManagedReference("reservedBook")
+	@JsonBackReference("bookReserved")
 	private Book book;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="user_id")
-	@JsonManagedReference("reserved")
-	@JsonBackReference("user")
+	@JsonManagedReference("reservedUser")
+	@JsonBackReference("userReserved")
 	private User user;
 	
 	@Column(name="dated")

@@ -12,11 +12,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.EqualsAndHashCode;
@@ -89,10 +91,19 @@ public class Book {
 	private String description;
 	
 	@OneToOne(mappedBy="book",
-			cascade= {CascadeType.MERGE,
-					CascadeType.PERSIST, CascadeType.REFRESH},
 			fetch=FetchType.LAZY)
-	@JsonBackReference
+	@JsonBackReference("reservedBook")
 	private Reserved reserved;
+	
+	@OneToOne(mappedBy="book", 
+			fetch=FetchType.LAZY)
+	@JoinColumn(name="book_id")
+	@JsonBackReference("borrowedBook")
+	private Borrowed borrowed;
+	
+	@OneToMany(mappedBy="book",
+			fetch=FetchType.LAZY)
+	@JsonManagedReference
+	private List<LibraryLog> libraryLog;
 	
 }

@@ -14,6 +14,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -30,7 +33,6 @@ import lombok.ToString;
 @Table(name="book_penalty")
 public class BookPenalty {
 
-	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id")
@@ -38,12 +40,12 @@ public class BookPenalty {
 	
 	@ManyToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id", insertable=false, updatable=false)
-	@JsonBackReference
+	@JsonManagedReference("penaltyUser")
+	@JsonBackReference("userPenalty")
 	private User user;
 	
 	@OneToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name="book_id")
-	@JsonBackReference
 	private Book book;
 	
 	@Column(name="due_date")

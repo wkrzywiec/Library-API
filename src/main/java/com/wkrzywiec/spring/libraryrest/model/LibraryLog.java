@@ -5,6 +5,8 @@ import java.sql.Timestamp;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,6 +21,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @Entity
 @Table(name="library_logs")
+@JsonIdentityInfo(
+		generator=ObjectIdGenerators.PropertyGenerator.class,
+		property="id")
 public class LibraryLog {
 
 	@Id

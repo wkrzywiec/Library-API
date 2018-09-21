@@ -93,15 +93,14 @@ public class User {
 						CascadeType.PERSIST, CascadeType.REFRESH},
 				fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id")
-	@JsonBackReference("reserved")
-	@JsonManagedReference("user")
+	@JsonBackReference("reservedUser")
 	private List<Reserved> reservedBooks; 
-	/*
+	
 	@OneToMany(	mappedBy="user",
 				cascade= {CascadeType.MERGE,
 						CascadeType.PERSIST, CascadeType.REFRESH},
 				fetch=FetchType.LAZY)
-	@JsonBackReference
+	@JsonBackReference("borrowedUser")
 	private List<Borrowed> borrowedBooks;
 	
 	@ManyToMany(fetch=FetchType.EAGER,
@@ -111,23 +110,24 @@ public class User {
 			name="book_penalty",
 			joinColumns=@JoinColumn(name="user_id"),
 			inverseJoinColumns=@JoinColumn(name="book_id"))
-	@JsonBackReference
+	@JsonManagedReference("userPenalty")
+	@JsonBackReference("penaltyUser")
 	private List<BookPenalty> penalties;
 	
 	@OneToMany(	mappedBy="user",
 			cascade= {CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH},
 			fetch=FetchType.LAZY)
-	@JsonBackReference
+	@JsonManagedReference
 	private List<UserLog> userLogs;
 	
 	@OneToMany(	mappedBy="user",
 			cascade= {CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH},
 			fetch=FetchType.LAZY)
-	@JsonBackReference
+	@JsonManagedReference
 	private List<LibraryLog> libraryLogs;
-	*/
+	
 	public User(String username, String email, boolean enable, String firstName, String lastName) {
 		super();
 		this.username = username;
