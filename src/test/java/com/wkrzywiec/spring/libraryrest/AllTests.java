@@ -7,7 +7,9 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 			BookControllerTest.class,
-			UserControllerTest.class})
+			UserControllerTest.class,
+			ReservedControllerTest.class,
+			BorrowedControllerTest.class})
 public class AllTests {
 
 }

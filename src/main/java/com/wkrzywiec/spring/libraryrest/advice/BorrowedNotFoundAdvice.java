@@ -6,16 +6,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.wkrzywiec.spring.libraryrest.exception.UserNotFoundException;
+import com.wkrzywiec.spring.libraryrest.exception.BorrowedNotFoundException;
 
 @ControllerAdvice
-public class UserNotFoundAdvice {
+public class BorrowedNotFoundAdvice {
 
 	@ResponseBody
-	@ExceptionHandler(UserNotFoundException.class)
+	@ExceptionHandler(BorrowedNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	String userNotFoundHandler(UserNotFoundException ex) {
+	String borrowedNotFoundHandler(BorrowedNotFoundException ex) {
 		return ex.getMessage();
 	}
-	
 }
