@@ -52,7 +52,7 @@ public class UserControllerTest {
 					.andExpect(jsonPath("$.address", nullValue(String.class)))
 					.andExpect(jsonPath("$.postalCode", nullValue(String.class)))
 					.andExpect(jsonPath("$.city", nullValue(String.class)))
-					.andExpect(jsonPath("$.recordCreated", is("2018-09-15T11:25:11.000+0000")))
+					.andExpect(jsonPath("$.recordCreated", is("2018-09-22T16:19:31.000+0000")))
 					.andExpect(jsonPath("$.roles", hasSize(2)))
 					.andExpect(jsonPath("$.roles[0].id", is(1)))
 					.andExpect(jsonPath("$.roles[0].name", is("USER")))
@@ -69,11 +69,13 @@ public class UserControllerTest {
 	@Test
 	public void givenInvalidUserId_whenProvideURL_thenReceiveErrorJSONNotFoundRespond() throws Exception {
 		mvc.perform(
-        		get("/users/1500").contentType(MediaType.TEXT_PLAIN_VALUE))
+        		get("/users/1500").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
                 	.andExpect(status().isNotFound())
                 	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                	.andExpect(content().string("Could not find user with id: 1500"))
+                	.andExpect(jsonPath("$.status", is("404, Not Found")))
+                	.andExpect(jsonPath("$.message", is("Could not find user with id: 1500")))
+                	.andExpect(jsonPath("$.details", is("You can't make any action on a non-existing resource")))
         ;
 	}
 }

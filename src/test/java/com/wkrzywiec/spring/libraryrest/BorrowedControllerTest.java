@@ -57,11 +57,13 @@ public class BorrowedControllerTest {
 	@Test
 	public void givenInvalidBookId_whenProvideURL_thenReceiveJSONNotFoundRespond() throws Exception {
 		mvc.perform(
-        		get("/borrowed/1500").contentType(MediaType.TEXT_PLAIN_VALUE))
+        		get("/borrowed/1500").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
                 	.andExpect(status().isNotFound())
                 	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                	.andExpect(content().string("Could not find borrowed with id: 1500"))
+                	.andExpect(jsonPath("$.status", is("404, Not Found")))
+                	.andExpect(jsonPath("$.message", is("Could not find borrowed with id: 1500")))
+                	.andExpect(jsonPath("$.details", is("You can't make any action on a non-existing resource")))
         ;
 	}
 }
