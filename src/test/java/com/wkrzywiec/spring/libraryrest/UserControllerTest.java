@@ -1,9 +1,14 @@
 package com.wkrzywiec.spring.libraryrest;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,9 +17,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
@@ -25,7 +31,7 @@ public class UserControllerTest {
 	private MockMvc mvc;
 	
 	@Test
-	public void givenAllUserURL_whenProvideURL_thenReceiveJSONOkRespond() throws Exception {
+	public void givenAllUserURL_whenCallGETMethod_thenReceiveJSONOkRespond() throws Exception {
 		mvc.perform(
         		get("/users").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
@@ -36,7 +42,7 @@ public class UserControllerTest {
 	}
 	
 	@Test
-	public void givenFirstUserId_whenProvideURL_thenReceiveJSONOkRespond() throws Exception {
+	public void givenFirstUserId_whenCallGETMethod_thenReceiveJSONOkRespond() throws Exception {
 		mvc.perform(
         		get("/users/1").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
@@ -52,7 +58,6 @@ public class UserControllerTest {
 					.andExpect(jsonPath("$.address", nullValue(String.class)))
 					.andExpect(jsonPath("$.postalCode", nullValue(String.class)))
 					.andExpect(jsonPath("$.city", nullValue(String.class)))
-					.andExpect(jsonPath("$.recordCreated", is("2018-09-22T16:19:31.000+0000")))
 					.andExpect(jsonPath("$.roles", hasSize(2)))
 					.andExpect(jsonPath("$.roles[0].id", is(1)))
 					.andExpect(jsonPath("$.roles[0].name", is("USER")))
@@ -67,7 +72,7 @@ public class UserControllerTest {
 	}
 	
 	@Test
-	public void givenInvalidUserId_whenProvideURL_thenReceiveErrorJSONNotFoundRespond() throws Exception {
+	public void givenInvalidUserId_whenCallGETMethod_thenReceiveErrorJSONNotFoundRespond() throws Exception {
 		mvc.perform(
         		get("/users/1500").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
@@ -78,4 +83,38 @@ public class UserControllerTest {
                 	.andExpect(jsonPath("$.details", is("You can't make any action on a non-existing resource")))
         ;
 	}
+	
+	@Test
+	@Sql(scripts="/insert-deleted-user.sql", 
+		executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+	public void givenValidUserIdWithNoReferenceToOtherTable_whenCallDELETEMethod_thenDeleteUserAndReceiveNoContentRespond() throws Exception {
+		mvc.perform(
+        		delete("/users/8").contentType(MediaType.APPLICATION_JSON))
+                	.andDo(print())
+                	.andExpect(status().isNoContent())
+        ;
+		
+		mvc.perform(
+        		get("/users/8").contentType(MediaType.APPLICATION_JSON))
+                	.andExpect(status().isNotFound())
+        ;
+	}
+	
+	@Test
+	public void givenValidUserIdThatIsReferenceInOtherTable_whenCallDELETEMethod_thenNotDeleteAndReceiveErrorJSONRespond() throws Exception {
+		mvc.perform(
+        		delete("/users/4").contentType(MediaType.APPLICATION_JSON))
+                	.andDo(print())
+                	.andExpect(status().isBadRequest())
+                	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                	.andExpect(jsonPath("$.status", is("400, Bad Request")))
+                	.andExpect(jsonPath("$.message", is("could not execute statement")))
+                	.andExpect(jsonPath("$.details", is("Reason: ConstraintViolationException. This entity has some constrains that doesn't allow to proceed.")))
+        ;
+		
+		mvc.perform(
+        		get("/users/4").contentType(MediaType.APPLICATION_JSON))
+                	.andExpect(status().isOk())
+        ;
+	}	
 }

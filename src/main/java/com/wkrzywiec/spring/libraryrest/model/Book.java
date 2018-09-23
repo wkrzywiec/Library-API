@@ -66,7 +66,8 @@ public class Book {
 	
 	@OneToOne(fetch=FetchType.EAGER,
 			cascade= {CascadeType.MERGE,
-						CascadeType.PERSIST, CascadeType.REFRESH})
+						CascadeType.PERSIST, CascadeType.REFRESH,
+						CascadeType.REMOVE})
 	@JoinColumn(name="isbn_id")
 	private Isbn isbn;
 	

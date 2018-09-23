@@ -3,6 +3,7 @@ package com.wkrzywiec.spring.libraryrest;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -16,6 +17,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -89,4 +92,38 @@ public class BookControllerTest {
                 	.andExpect(jsonPath("$.details", is("You can't make any action on a non-existing resource")))
         ;
 	}
+	
+	@Test
+	@Sql(scripts="/insert-deleted-book.sql", 
+		executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+	public void givenValidUserIdWithNoReferenceToOtherTable_whenCallDELETEMethod_thenDeleteUserAndReceiveNoContentRespond() throws Exception {
+		mvc.perform(
+        		delete("/books/2").contentType(MediaType.APPLICATION_JSON))
+                	.andDo(print())
+                	.andExpect(status().isNoContent())
+        ;
+		
+		mvc.perform(
+        		get("/books/2").contentType(MediaType.APPLICATION_JSON))
+                	.andExpect(status().isNotFound())
+        ;
+	}
+	
+	@Test
+	public void givenValidUserIdThatIsReferenceInOtherTable_whenCallDELETEMethod_thenNotDeleteAndReceiveErrorJSONRespond() throws Exception {
+		mvc.perform(
+        		delete("/books/16").contentType(MediaType.APPLICATION_JSON))
+                	.andDo(print())
+                	.andExpect(status().isBadRequest())
+                	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                	.andExpect(jsonPath("$.status", is("400, Bad Request")))
+                	.andExpect(jsonPath("$.message", is("could not execute statement")))
+                	.andExpect(jsonPath("$.details", is("Reason: ConstraintViolationException. This entity has some constrains that doesn't allow to proceed.")))
+        ;
+		
+		mvc.perform(
+        		get("/books/16").contentType(MediaType.APPLICATION_JSON))
+                	.andExpect(status().isOk())
+        ;
+	}	
 }
