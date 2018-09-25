@@ -34,7 +34,8 @@ import lombok.ToString;
 @Table(name="borrowed")
 @JsonIdentityInfo(
 		generator=ObjectIdGenerators.PropertyGenerator.class,
-		property="id")
+		property="id",
+		scope=Long.class)
 public class Borrowed {
 
 	@Id
@@ -42,14 +43,12 @@ public class Borrowed {
 	@Column(name="id")
 	private Long id;
 	
-	@OneToOne()
+	@OneToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="book_id")
-	@JsonManagedReference("borrowedBook")
 	private Book book;
 	
-	@ManyToOne()
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="user_id")
-	@JsonManagedReference("borrowedUser")
 	private User user;
 	
 	@Column(name="dated")

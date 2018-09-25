@@ -23,7 +23,8 @@ import lombok.ToString;
 @Table(name="library_logs")
 @JsonIdentityInfo(
 		generator=ObjectIdGenerators.PropertyGenerator.class,
-		property="id")
+		property="id",
+		scope=Long.class)
 public class LibraryLog {
 
 	@Id
@@ -39,12 +40,10 @@ public class LibraryLog {
 	
 	@ManyToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name="book_id", insertable=false, updatable=false)
-	@JsonBackReference
 	private Book book;
 	
 	@ManyToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id", insertable=false, updatable=false)
-	@JsonBackReference
 	private User user;
 	
 	@Column(name="dated")

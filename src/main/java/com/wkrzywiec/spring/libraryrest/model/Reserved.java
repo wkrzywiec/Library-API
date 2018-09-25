@@ -34,7 +34,8 @@ import lombok.ToString;
 @Table(name="reserved")
 @JsonIdentityInfo(
 		generator=ObjectIdGenerators.PropertyGenerator.class,
-		property="id")
+		property="id",
+		scope=Long.class)
 public class Reserved {
 
 	@Id
@@ -44,14 +45,10 @@ public class Reserved {
 	
 	@OneToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="book_id")
-	@JsonManagedReference("reservedBook")
-	@JsonBackReference("bookReserved")
 	private Book book;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="user_id")
-	@JsonManagedReference("reservedUser")
-	@JsonBackReference("userReserved")
 	private User user;
 	
 	@Column(name="dated")

@@ -69,12 +69,6 @@ public class BookControllerTest {
 					.andExpect(jsonPath("$.categories[2].name", is("Fiction / Fantasy / Epic")))
 					.andExpect(jsonPath("$.rating", is(3.5)))
 					.andExpect(jsonPath("$.imageLink", is("http://books.google.com/books/content?id=7Q4R3RHe8AQC&printsec=frontcover&img=1&zoom=1&edge=curl&imgtk=AFLRE70E7ghngLwyzjH06O8JLiHQwmJ1nWmgdGYPoqUZeuhu6nZxZvuiMnYspZZU2pcabdEuevVsWIKHlZEDrI0fazN_76fxMJLrAF_BDfG5iLBcRLgOWeug9HATPTOChfZvKchtZY_Y&source=gbs_api")))
-					.andExpect(jsonPath("$.libraryLog", hasSize(1)))
-					.andExpect(jsonPath("$.libraryLog[0].id", is(4)))
-					.andExpect(jsonPath("$.libraryLog[0].level", is("INFO")))
-					.andExpect(jsonPath("$.libraryLog[0].message", is("Reserved")))
-					.andExpect(jsonPath("$.libraryLog[0].dated", is("2018-09-15T09:14:13.000+0000")))
-					.andExpect(jsonPath("$.libraryLog[0].changedByUsername", is("rob")))
 					.andExpect(jsonPath("$._links.self.href", is("http://localhost/books/10")))
 					.andExpect(jsonPath("$._links.books.href", is("http://localhost/books")))
         ;

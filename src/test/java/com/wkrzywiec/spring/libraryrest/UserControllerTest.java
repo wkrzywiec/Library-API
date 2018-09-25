@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -22,6 +23,12 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.wkrzywiec.spring.libraryrest.model.User;
+import com.wkrzywiec.spring.libraryrest.repository.UserRepository;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -29,6 +36,9 @@ public class UserControllerTest {
 
 	@Autowired
 	private MockMvc mvc;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 	@Test
 	public void givenAllUserURL_whenCallGETMethod_thenReceiveJSONOkRespond() throws Exception {
@@ -63,9 +73,6 @@ public class UserControllerTest {
 					.andExpect(jsonPath("$.roles[0].name", is("USER")))
 					.andExpect(jsonPath("$.roles[1].id", is(2)))
 					.andExpect(jsonPath("$.roles[1].name", is("ADMIN")))
-					.andExpect(jsonPath("$.penalties", hasSize(0)))
-					.andExpect(jsonPath("$.userLogs", hasSize(4)))
-					.andExpect(jsonPath("$.libraryLogs", hasSize(3)))
 					.andExpect(jsonPath("$._links.self.href", is("http://localhost/users/1")))
 					.andExpect(jsonPath("$._links.users.href", is("http://localhost/users")))
         ;
@@ -82,6 +89,48 @@ public class UserControllerTest {
                 	.andExpect(jsonPath("$.message", is("Could not find user with id: 1500")))
                 	.andExpect(jsonPath("$.details", is("You can't make any action on a non-existing resource")))
         ;
+	}
+	
+	@Test
+	@Sql(scripts="/delete-inserted-user.sql", 
+	executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+	public void givenNewUser_whenCallPOSTMethod_thenSaveNewUserAndReceiveJSONRespond() throws Exception {
+		
+		User newUser = new User();
+		newUser.setUsername("wojtek");
+		newUser.setEmail("wojtek@mail.com");
+		newUser.setEnable(true);
+		newUser.setFirstName("Wojtek");
+		newUser.setLastName("Krzywiec");
+		newUser.setPhone("123456789");
+		newUser.setAddress("Main street 12");
+		newUser.setPostalCode("74-234");
+		newUser.setCity("Warsaw");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+	    ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+	    String requestJson = ow.writeValueAsString(newUser);
+		
+		mvc.perform(
+				post("/users").contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson))
+				.andDo(print())
+				.andExpect(status().isCreated())
+				//.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$.username", is(newUser.getUsername())))
+				.andExpect(jsonPath("$.email", is(newUser.getEmail())))
+				.andExpect(jsonPath("$.firstName", is(newUser.getFirstName())))
+				.andExpect(jsonPath("$.lastName", is(newUser.getLastName())))
+				.andExpect(jsonPath("$.phone", is(newUser.getPhone())))
+				.andExpect(jsonPath("$.birthday", nullValue(String.class)))
+				.andExpect(jsonPath("$.address", is(newUser.getAddress())))
+				.andExpect(jsonPath("$.postalCode", is(newUser.getPostalCode())))
+				.andExpect(jsonPath("$.city", is(newUser.getCity())))
+				.andExpect(jsonPath("$.roles", hasSize(1)))
+				.andExpect(jsonPath("$.roles[0].id", is(1)))
+				.andExpect(jsonPath("$.roles[0].name", is("USER")))
+		;
 	}
 	
 	@Test

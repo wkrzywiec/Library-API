@@ -13,9 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.EqualsAndHashCode;
@@ -31,6 +29,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @Entity
 @Table(name="book_penalty")
+@JsonIdentityInfo(
+		generator=ObjectIdGenerators.PropertyGenerator.class,
+		property="id",
+		scope=Long.class)
 public class BookPenalty {
 
 	@Id
@@ -40,8 +42,6 @@ public class BookPenalty {
 	
 	@ManyToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id", insertable=false, updatable=false)
-	@JsonManagedReference("penaltyUser")
-	@JsonBackReference("userPenalty")
 	private User user;
 	
 	@OneToOne (fetch=FetchType.LAZY)

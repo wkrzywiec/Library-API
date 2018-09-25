@@ -18,6 +18,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @Entity
 @Table(name="isbn")
+@JsonIdentityInfo(
+		generator=ObjectIdGenerators.PropertyGenerator.class,
+		property="id",
+		scope= Long.class)
 public class Isbn {
 
 	@Id

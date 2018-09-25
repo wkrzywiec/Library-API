@@ -19,9 +19,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.EqualsAndHashCode;
@@ -39,7 +39,9 @@ import lombok.ToString;
 @Table(name="user")
 @JsonIdentityInfo(
 		generator=ObjectIdGenerators.PropertyGenerator.class,
-		property="id")
+		property="id",
+		scope= Long.class)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
 	@Id
@@ -49,6 +51,10 @@ public class User {
 	
 	@Column(name="username", unique=true)
 	private String username;
+	
+	@Column(name="password")
+	@JsonIgnore
+	private String password;
 	
 	@Column(name="email", unique=true)
 	private String email;
@@ -89,18 +95,18 @@ public class User {
 				inverseJoinColumns=@JoinColumn(name="role_id"))
 	private Set<Role> roles;
 	
-	@OneToMany(	cascade= {CascadeType.MERGE,
+	@OneToMany(mappedBy="user",
+			cascade= {CascadeType.MERGE,
 						CascadeType.PERSIST, CascadeType.REFRESH},
 				fetch=FetchType.LAZY)
-	@JoinColumn(name="user_id")
-	@JsonBackReference("reservedUser")
+	@JsonIgnore
 	private List<Reserved> reservedBooks; 
 	
 	@OneToMany(	mappedBy="user",
 				cascade= {CascadeType.MERGE,
 						CascadeType.PERSIST, CascadeType.REFRESH},
 				fetch=FetchType.LAZY)
-	@JsonBackReference("borrowedUser")
+	@JsonIgnore
 	private List<Borrowed> borrowedBooks;
 	
 	@ManyToMany(fetch=FetchType.EAGER,
@@ -110,31 +116,31 @@ public class User {
 			name="book_penalty",
 			joinColumns=@JoinColumn(name="user_id"),
 			inverseJoinColumns=@JoinColumn(name="book_id"))
-	@JsonManagedReference("userPenalty")
-	@JsonBackReference("penaltyUser")
+	@JsonIgnore
 	private List<BookPenalty> penalties;
 	
 	@OneToMany(	mappedBy="user",
 			cascade= {CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH},
 			fetch=FetchType.LAZY)
-	@JsonManagedReference
+	@JsonIgnore
 	private List<UserLog> userLogs;
 	
 	@OneToMany(	mappedBy="user",
 			cascade= {CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH},
 			fetch=FetchType.LAZY)
-	@JsonManagedReference
+	@JsonIgnore
 	private List<LibraryLog> libraryLogs;
 	
-	public User(String username, String email, boolean enable, String firstName, String lastName) {
+	public User(String username, String email, boolean enable, String firstName, String lastName, String password) {
 		super();
 		this.username = username;
 		this.email = email;
 		this.enable = enable;
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.password = password;
 	}
 	
 	public void addRole(Role role){

@@ -21,6 +21,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @Entity
 @Table(name="user_logs")
+@JsonIdentityInfo(
+		generator=ObjectIdGenerators.PropertyGenerator.class,
+		property="id",
+		scope=Long.class)
 public class UserLog {
 
 	@Id
@@ -36,7 +40,6 @@ public class UserLog {
 
 	@ManyToOne (fetch=FetchType.LAZY)
 	@JoinColumn(name="user_id", insertable=false, updatable=false)
-	@JsonBackReference
 	private User user;
 	
 	@Column(name="field")
