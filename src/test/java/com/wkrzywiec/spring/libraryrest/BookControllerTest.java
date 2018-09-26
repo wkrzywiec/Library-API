@@ -111,8 +111,8 @@ public class BookControllerTest {
                 	.andExpect(status().isBadRequest())
                 	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 	.andExpect(jsonPath("$.status", is("400, Bad Request")))
-                	.andExpect(jsonPath("$.message", is("could not execute statement")))
-                	.andExpect(jsonPath("$.details", is("Reason: ConstraintViolationException. This entity has some constrains that doesn't allow to proceed.")))
+                	.andExpect(jsonPath("$.message", is("could not execute statement, SQL State: 23000")))
+                	.andExpect(jsonPath("$.details", is("com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException: Cannot delete or update a parent row: a foreign key constraint fails (`library_db`.`borrowed`, CONSTRAINT `FK_BOOK_BORROWED` FOREIGN KEY (`book_id`) REFERENCES `book` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION)")))
         ;
 		
 		mvc.perform(

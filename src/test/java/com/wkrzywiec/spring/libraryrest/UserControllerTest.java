@@ -117,7 +117,6 @@ public class UserControllerTest {
 				.content(requestJson))
 				.andDo(print())
 				.andExpect(status().isCreated())
-				//.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$.username", is(newUser.getUsername())))
 				.andExpect(jsonPath("$.email", is(newUser.getEmail())))
 				.andExpect(jsonPath("$.firstName", is(newUser.getFirstName())))
@@ -130,6 +129,27 @@ public class UserControllerTest {
 				.andExpect(jsonPath("$.roles", hasSize(1)))
 				.andExpect(jsonPath("$.roles[0].id", is(1)))
 				.andExpect(jsonPath("$.roles[0].name", is("USER")))
+		;
+	}
+	
+	@Test
+	public void givenEmptyNewUser_whenCallPOSTMethod_thenReceiveJSONErrorRespond() throws Exception {
+		
+		User newUser = new User();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+	    ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+	    String requestJson = ow.writeValueAsString(newUser);
+	    
+	    mvc.perform(
+				post("/users").contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson))
+				.andDo(print())
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.status", is("400, Bad Request")))
+            	.andExpect(jsonPath("$.message", is("could not execute statement, SQL State: 23000")))
+            	.andExpect(jsonPath("$.details", is("com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException: Column 'email' cannot be null")))
 		;
 	}
 	
@@ -157,8 +177,8 @@ public class UserControllerTest {
                 	.andExpect(status().isBadRequest())
                 	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 	.andExpect(jsonPath("$.status", is("400, Bad Request")))
-                	.andExpect(jsonPath("$.message", is("could not execute statement")))
-                	.andExpect(jsonPath("$.details", is("Reason: ConstraintViolationException. This entity has some constrains that doesn't allow to proceed.")))
+                	.andExpect(jsonPath("$.message", is("could not execute statement, SQL State: 23000")))
+                	.andExpect(jsonPath("$.details", is("com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException: Cannot delete or update a parent row: a foreign key constraint fails (`library_db`.`borrowed`, CONSTRAINT `FK_USER_BORROWED` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION)")))
         ;
 		
 		mvc.perform(

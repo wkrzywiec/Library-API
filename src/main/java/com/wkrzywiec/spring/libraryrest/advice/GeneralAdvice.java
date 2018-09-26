@@ -18,8 +18,8 @@ public class GeneralAdvice {
 		
 		ErrorRespond error = new ErrorRespond();
 		error.setStatus(HttpStatus.BAD_REQUEST.value() + ", " + HttpStatus.BAD_REQUEST.getReasonPhrase());
-		error.setMessage(ex.getMessage());
-		error.setDetails("Reason: ConstraintViolationException. This entity has some constrains that doesn't allow to proceed.");
+		error.setMessage(ex.getMessage() + ", SQL State: "  + ex.getSQLState());
+		error.setDetails(ex.getSQLException().toString());
 		
 	    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 	}
