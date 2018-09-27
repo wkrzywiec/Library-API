@@ -3,8 +3,10 @@ package com.wkrzywiec.spring.libraryrest;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -22,6 +24,11 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.wkrzywiec.spring.libraryrest.model.User;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -31,7 +38,7 @@ public class BookControllerTest {
 	private MockMvc mvc;
 	
 	@Test
-	public void givenAllBooksURL_whenProvideURL_thenReceiveJSONOkRespond() throws Exception {
+	public void givenAllBooksURL_whenCallGETMethod_thenReceiveJSONOkRespond() throws Exception {
 		mvc.perform(
         		get("/books").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
@@ -42,7 +49,7 @@ public class BookControllerTest {
 	}
 	
 	@Test
-	public void givenTenthUserId_whenProvideURL_thenReceiveJSONOkRespond() throws Exception {
+	public void givenTenthUserId_whenCallGETMethod_thenReceiveJSONOkRespond() throws Exception {
 		mvc.perform(
         		get("/books/10").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
@@ -75,7 +82,7 @@ public class BookControllerTest {
 	}
 	
 	@Test
-	public void givenInvalidBookId_whenProvideURL_thenReceiveJSONNotFoundRespond() throws Exception {
+	public void givenInvalidBookId_whenCallGETMethod_thenReceiveJSONNotFoundRespond() throws Exception {
 		mvc.perform(
         		get("/books/1500").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
@@ -85,6 +92,68 @@ public class BookControllerTest {
                 	.andExpect(jsonPath("$.message", is("Could not find book with id: 1500")))
                 	.andExpect(jsonPath("$.details", is("You can't make any action on a non-existing resource")))
         ;
+	}
+	
+	@Test
+	@Sql(scripts="/delete-inserted-user.sql", 
+	executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+	public void givenNewBook_whenCallPOSTMethod_thenSaveNewBookAndReceiveJSONRespond() throws Exception {
+		
+		User newUser = new User();
+		newUser.setUsername("wojtek");
+		newUser.setEmail("wojtek@mail.com");
+		newUser.setEnable(true);
+		newUser.setFirstName("Wojtek");
+		newUser.setLastName("Krzywiec");
+		newUser.setPhone("123456789");
+		newUser.setAddress("Main street 12");
+		newUser.setPostalCode("74-234");
+		newUser.setCity("Warsaw");
+		
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+	    ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+	    String requestJson = ow.writeValueAsString(newUser);
+		
+		mvc.perform(
+				post("/users").contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson))
+				.andDo(print())
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.username", is(newUser.getUsername())))
+				.andExpect(jsonPath("$.email", is(newUser.getEmail())))
+				.andExpect(jsonPath("$.firstName", is(newUser.getFirstName())))
+				.andExpect(jsonPath("$.lastName", is(newUser.getLastName())))
+				.andExpect(jsonPath("$.phone", is(newUser.getPhone())))
+				.andExpect(jsonPath("$.birthday", nullValue(String.class)))
+				.andExpect(jsonPath("$.address", is(newUser.getAddress())))
+				.andExpect(jsonPath("$.postalCode", is(newUser.getPostalCode())))
+				.andExpect(jsonPath("$.city", is(newUser.getCity())))
+				.andExpect(jsonPath("$.roles", hasSize(1)))
+				.andExpect(jsonPath("$.roles[0].id", is(1)))
+				.andExpect(jsonPath("$.roles[0].name", is("USER")))
+		;
+	}
+	
+	@Test
+	public void givenEmptyNewUser_whenCallPOSTMethod_thenReceiveJSONErrorRespond() throws Exception {
+		
+		User newUser = new User();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+	    ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+	    String requestJson = ow.writeValueAsString(newUser);
+	    
+	    mvc.perform(
+				post("/users").contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson))
+				.andDo(print())
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.status", is("400, Bad Request")))
+            	.andExpect(jsonPath("$.message", is("could not execute statement, SQL State: 23000")))
+            	.andExpect(jsonPath("$.details", is("com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException: Column 'email' cannot be null")))
+		;
 	}
 	
 	@Test

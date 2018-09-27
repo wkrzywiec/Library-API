@@ -5,26 +5,25 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wkrzywiec.spring.libraryrest.assembler.UserResourceAssembler;
 import com.wkrzywiec.spring.libraryrest.exception.UserNotFoundException;
-import com.wkrzywiec.spring.libraryrest.model.Role;
 import com.wkrzywiec.spring.libraryrest.model.User;
 import com.wkrzywiec.spring.libraryrest.repository.RoleRepository;
 import com.wkrzywiec.spring.libraryrest.repository.UserRepository;
@@ -73,6 +72,27 @@ public class UserController {
 		
 		return ResponseEntity
 					.created(new URI(resource.getId().expand().getHref()))
+					.body(resource);
+	}
+	
+	@PutMapping("/users/{id}")
+	public ResponseEntity<Resource<User>> updateUser(@RequestBody User newUser, @PathVariable Long id) {
+		
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new UserNotFoundException(id));
+		
+		user.setFirstName(newUser.getFirstName());
+		user.setLastName(newUser.getFirstName());
+		user.setPhone(newUser.getPhone());
+		user.setBirthday(newUser.getBirthday());
+		user.setAddress(newUser.getAddress());
+		user.setPostalCode(newUser.getPostalCode());
+		user.setCity(newUser.getCity());
+		
+		Resource<User> resource = userAssembler.toResource(userRepository.save(user));
+				
+		return ResponseEntity
+					.status(HttpStatus.OK)
 					.body(resource);
 	}
 	
