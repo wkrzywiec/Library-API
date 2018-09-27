@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -23,6 +24,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -36,9 +38,6 @@ public class UserControllerTest {
 
 	@Autowired
 	private MockMvc mvc;
-	
-	@Autowired
-	private UserRepository userRepository;
 	
 	@Test
 	public void givenAllUserURL_whenCallGETMethod_thenReceiveJSONOkRespond() throws Exception {
@@ -151,6 +150,63 @@ public class UserControllerTest {
             	.andExpect(jsonPath("$.message", is("could not execute statement, SQL State: 23000")))
             	.andExpect(jsonPath("$.details", is("com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException: Column 'email' cannot be null")))
 		;
+	}
+	
+	@Test
+	@Sql(scripts="/rollback-updated-user.sql", 
+		executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+	public void givenValidUserId_whenCallPUTMethod_thenUpdateUserAndReceiveJSONRespond() throws Exception {
+		
+			User newUser = new User();
+			newUser.setFirstName("Wojtek");
+			newUser.setPhone("123456789");
+			newUser.setAddress("Main street 12");
+			newUser.setPostalCode("74-234");
+			newUser.setCity("Warsaw");
+					
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+		    ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+		    String requestJson = ow.writeValueAsString(newUser);
+		    			
+			mvc.perform(
+	        		put("/users/11").contentType(MediaType.APPLICATION_JSON)
+						.content(requestJson))
+	                	.andDo(print())
+	                	.andExpect(status().isOk())
+						.andExpect(jsonPath("$.id", is(11)))
+						.andExpect(jsonPath("$.firstName", is("Wojtek")))
+						.andExpect(jsonPath("$.phone", is("123456789")))
+						.andExpect(jsonPath("$.address", is("Main street 12")))
+						.andExpect(jsonPath("$.postalCode", is("74-234")))
+						.andExpect(jsonPath("$.city", is("Warsaw")))
+	        ;
+	}
+	
+	@Test
+	public void givenInvalidUserId_whenCallPUTMethod_thenReceiveErrorJSONNotFoundRespond() throws Exception {
+			
+			User newUser = new User();
+			newUser.setFirstName("Wojtek");
+			newUser.setPhone("123456789");
+			newUser.setAddress("Main street 12");
+			newUser.setPostalCode("74-234");
+			newUser.setCity("Warsaw");
+			
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+		    ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+		    String requestJson = ow.writeValueAsString(newUser);
+			
+			mvc.perform(
+	        		put("/users/1500").contentType(MediaType.APPLICATION_JSON)
+						.content(requestJson))
+	                	.andDo(print())
+	                	.andExpect(status().isNotFound())
+	                	.andExpect(jsonPath("$.status", is("404, Not Found")))
+	                	.andExpect(jsonPath("$.message", is("Could not find user with id: 1500")))
+	                	.andExpect(jsonPath("$.details", is("You can't make any action on a non-existing resource")))
+	        ;
 	}
 	
 	@Test
