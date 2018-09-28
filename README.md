@@ -138,6 +138,7 @@ Sample JSON respond of the user resource.
 | ------------- | ------------- | -------------------------------------------------  |
 | `/books`      | GET           | Retrieve the list of all books.                    |
 | `/books/{id}` | GET           | Retrieve specific book with provided `{id}`.    	|
+| `/books/{id}` | DELETE         | Delete from the database book with provided `{id}`.    	|
 
 Sample JSON respond of the book resource.
 
@@ -194,8 +195,8 @@ Sample JSON respond of the book resource.
 | ------------- | ------------- | -------------------------------------------------  |
 | `/reserved`     | GET         | Retrieve the list of all reservations.             |
 | `/reserved/{id}`| GET         | Retrieve specific reservation with provided `{id}`.    |
-| `/reserved?userId={userId}`   | GET         | Retrieve list of reservations that are assigned to the user `{userId}`. This parameter can be combined with `bookId`.|
-| `/reserved?bookId={bookId}`   | GET         | Retrieve list of reservations that are assigned to the book `{bookId}`. This parameter can be combined with `userId`.|
+| `/reserved/users/{userId}`   | GET         | Retrieve list of reservations that are assigned to the user `{userId}`. |
+| `/reserved/books/{bookId}`   | GET         | Retrieve reservation resource that is assigned to the book `{bookId}`.|
 
 
 #### Borrowed
@@ -204,8 +205,8 @@ Sample JSON respond of the book resource.
 | ------------- | ------------- | -------------------------------------------------  |
 | `/borrowed`     | GET         | Retrieve the list of all borrowed books.             |
 | `/borrowed/{id}`| GET         | Retrieve specific borrowed book with provided `{id}`.    |
-| `/borrowed?userId={userId}`   | GET         | Retrieve list of borrowed books that are assigned to the user `{userId}`. This parameter can be combined with `bookId`.|
-| `/borrowed?bookId={bookId}`   | GET         | Retrieve list of borrowed books that are assigned to the book `{bookId}`. This parameter can be combined with `userId`.|
+| `/borrowed/users/{userId}`   | GET         | Retrieve list of borrowed books that are assigned to the user `{userId}`. |
+| `/borrowed/books/{bookId}`   | GET         | Retrieve borrowed resource that is assigned to the book `{bookId}`.|
 
 
 ## Monitoring
@@ -261,3 +262,4 @@ You should get the list of links. Each of them provides useful information about
 - [Postman](https://www.getpostman.com/)
 - [Setting Up Swagger 2 with a Spring REST API](https://www.baeldung.com/swagger-2-documentation-for-spring-rest-api)
 - [Spring Boot Actuator: Health check, Auditing, Metrics gathering and Monitoring](https://www.callicoder.com/spring-boot-actuator/)
+- [Tired of Null Pointer Exceptions? Consider Using Java SE 8's Optional!](https://www.oracle.com/technetwork/articles/java/java8-optional-2175753.html)
