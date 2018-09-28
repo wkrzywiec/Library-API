@@ -66,4 +66,56 @@ public class BorrowedControllerTest {
                 	.andExpect(jsonPath("$.details", is("You can't make any action on a non-existing resource")))
         ;
 	}
+	
+	@Test
+	public void givenValidUserId_WhenCallGETMethod_thenReceiveJSONOkRespond() throws Exception {
+		
+		mvc.perform(
+        		get("/borrowed/users/19").contentType(MediaType.APPLICATION_JSON))
+                	.andDo(print())
+                	.andExpect(status().isOk())
+                	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                	.andExpect(jsonPath("$._embedded.borrowedList", hasSize(3)))
+        ;
+	}
+	
+	@Test
+	public void givenInValidUserId_WhenCallGETMethod_thenReceiveJSONONotFoundRespond() throws Exception {
+		
+		mvc.perform(
+        		get("/borrowed/users/8").contentType(MediaType.APPLICATION_JSON))
+                	.andDo(print())
+                	.andExpect(status().isNotFound())
+                	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                	.andExpect(jsonPath("$.status", is("404, Not Found")))
+                	.andExpect(jsonPath("$.message", is("User with and Id: 8 has not borrowed any book.")))
+                	.andExpect(jsonPath("$.details", is("You can't make any action on a non-existing resource")))
+        ;
+	}
+	
+	@Test
+	public void givenValidBookId_WhenCallGETMethod_thenReceiveJSONOkRespond() throws Exception {
+		
+		mvc.perform(
+        		get("/borrowed/books/27").contentType(MediaType.APPLICATION_JSON))
+                	.andDo(print())
+                	.andExpect(status().isOk())
+                	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                	.andExpect(jsonPath("$.id", is(4)))
+        ;
+	}
+	
+	@Test
+	public void givenInValidBookId_WhenCallGETMethod_thenReceiveJSONONotFoundRespond() throws Exception {
+		
+		mvc.perform(
+        		get("/borrowed/books/11").contentType(MediaType.APPLICATION_JSON))
+                	.andDo(print())
+                	.andExpect(status().isNotFound())
+                	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                	.andExpect(jsonPath("$.status", is("404, Not Found")))
+                	.andExpect(jsonPath("$.message", is("Book with an Id: 11 is not borrowed.")))
+                	.andExpect(jsonPath("$.details", is("You can't make any action on a non-existing resource")))
+        ;
+	}
 }

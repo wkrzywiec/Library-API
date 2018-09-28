@@ -4,6 +4,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,34 @@ public class BorrowedController {
 		Borrowed borrowed  = repository.findById(id)
 				.orElseThrow(() -> new BorrowedNotFoundException(id));
 		
+		return assembler.toResource(borrowed);
+	}
+	
+	@GetMapping(value="/borrowed/users/{userId}", 
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public Resources<Resource<Borrowed>> getAllBorrowedBooksForUser(@PathVariable Long userId) {
+
+		List<Resource<Borrowed>> borrowed = repository.findByUserId(userId).stream()
+					.map(assembler::toResource)
+					.collect(Collectors.toList())
+		;
+		
+		if (borrowed.isEmpty()) 
+			throw new BorrowedNotFoundException("User with and Id: " + userId + " has not borrowed any book.");
+
+		return new Resources<>(borrowed,
+				linkTo(methodOn(BorrowedController.class).getAllBorrowedBooks()).withSelfRel());
+	}
+	
+	@GetMapping(value="/borrowed/books/{bookId}", 
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public Resource<Borrowed> getBorrowedForBook(@PathVariable Long bookId) {
+
+		Optional.ofNullable(repository.findByBookId(bookId))
+			.orElseThrow(() -> new BorrowedNotFoundException("Book with an Id: " + bookId + " is not borrowed."));
+		
+		Borrowed borrowed = repository.findByBookId(bookId);
+
 		return assembler.toResource(borrowed);
 	}
 }

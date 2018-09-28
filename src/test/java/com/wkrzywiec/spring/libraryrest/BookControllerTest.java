@@ -40,7 +40,7 @@ public class BookControllerTest {
 	@Test
 	public void givenAllBooksURL_whenCallGETMethod_thenReceiveJSONOkRespond() throws Exception {
 		mvc.perform(
-        		get("/books").contentType(MediaType.APPLICATION_JSON))
+        		get("/books/").contentType(MediaType.APPLICATION_JSON))
                 	.andDo(print())
                 	.andExpect(status().isOk())
                 	.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

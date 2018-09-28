@@ -116,21 +116,18 @@ public class User {
 			name="book_penalty",
 			joinColumns=@JoinColumn(name="user_id"),
 			inverseJoinColumns=@JoinColumn(name="book_id"))
-	@JsonIgnore
 	private List<BookPenalty> penalties;
 	
 	@OneToMany(	mappedBy="user",
 			cascade= {CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH},
 			fetch=FetchType.LAZY)
-	@JsonIgnore
 	private List<UserLog> userLogs;
 	
 	@OneToMany(	mappedBy="user",
 			cascade= {CascadeType.MERGE,
 					CascadeType.PERSIST, CascadeType.REFRESH},
 			fetch=FetchType.LAZY)
-	@JsonIgnore
 	private List<LibraryLog> libraryLogs;
 	
 	public User(String username, String email, boolean enable, String firstName, String lastName, String password) {
