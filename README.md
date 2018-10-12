@@ -3,35 +3,12 @@ This a simple REST service and is part of the other project - [Library Portal](h
 
 Similarly to the main project, it contains Flyway migration scripts so MySQL database could be set up regardless of the main app.
 
+This is a Google Cloud Platform deployable version. For clarity and to keep code simple it cannot be ran locally, only on the Google App Engine Servers. If you are looking for a local deployable version check the [master branch](https://github.com/wkrzywiec/Library-API).
+
+
 ## How to run?
 
-First create a new user and schema in you local database.
-
-```sql
-  CREATE USER 'library-spring'@'localhost' IDENTIFIED BY 'library-spring';
-  GRANT ALL PRIVILEGES ON  *.* TO 'library-spring'@'localhost';
-  SET GLOBAL EVENT_SCHEDULER = ON;
-  
-  CREATE SCHEMA `library_db`
-```
-
-Next, clone this repository.
-
-```
-$ git clone https://github.com/wkrzywiec/Library-Spring
-```
-
-Finally run this application thru LibraryRestApplication as Java application.
-
-```java
-@SpringBootApplication
-public class LibraryRestApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(LibraryRestApplication.class, args);
-	}
-}
-```
+Soon the link to the blog post will be provided.
 
 ## Documentation
 ### Swagger 2
@@ -255,6 +232,22 @@ You should get the list of links. Each of them provides useful information about
 	}
 }
 ```
+
+## Technology stack
+
+- Java 8
+- Spring Boot 
+- Hibernate, JPA
+- Swagger
+- JSON
+- HATEOAS
+- MySQL
+- Flyway
+- Tomcat server (only for local deployment)
+- Jetty server (only for Google Cloud Platform deployment)
+- Lombok
+- JUnit
+- Hamcrest
 
 ## Useful links
 
