@@ -3,6 +3,8 @@ This a simple REST service and is part of the other project - [Library Portal](h
 
 Similarly to the main project, it contains Flyway migration scripts so MySQL database could be set up regardless of the main app.
 
+There is also a different version of this app that can be deployed and ran on the Google Cloud Platform service - [Google App Engine](https://cloud.google.com/appengine/) and [Cloud SQL](https://cloud.google.com/sql/). To see the source code go to another branch of this repository called [app-engine](https://github.com/wkrzywiec/Library-API/tree/app-engine).
+
 ## How to run?
 
 First create a new user and schema in you local database.
@@ -255,6 +257,22 @@ You should get the list of links. Each of them provides useful information about
 	}
 }
 ```
+
+## Technology stack
+
+- Java 8
+- Spring Boot 
+- Hibernate, JPA
+- Swagger
+- JSON
+- HATEOAS
+- MySQL
+- Flyway
+- Tomcat server (only for local deployment)
+- Jetty server (only for Google Cloud Platform deployment)
+- Lombok
+- JUnit
+- Hamcrest
 
 ## Useful links
 
